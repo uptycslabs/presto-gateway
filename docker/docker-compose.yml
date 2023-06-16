@@ -1,0 +1,13 @@
+version: '3.4'
+services:
+  gateway:
+    image: 267292272963.dkr.ecr.us-east-1.amazonaws.com/uptycsdev/presto-gateway/presto-gateway:v1.3
+    container_name: prestogateway
+    ports:
+      - 8082:8082
+    volumes:
+      - ${PRESTOGATEWAY_HOME}/config:/opt/uptycs/prestogateway/config
+    environment:
+      uid: ${uid:-1000}
+      gid: ${gid:-1000}
+      APPUSER: uptycs

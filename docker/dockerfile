@@ -1,0 +1,29 @@
+FROM 267292272963.dkr.ecr.us-east-1.amazonaws.com/uptycs/alpine:v3
+LABEL \
+  com.uptycs.description="presto gateway image" \
+  com.uptycs.name="prestogateway" \
+  com.uptycs.version="1.x" \
+  com.uptycs.schema-version="1.0" \
+  com.uptycs.url="https://www.uptycs.com" \
+  com.uptycs.vcs-url="https://github.com/Uptycs/docker" \
+  com.uptycs.vendor="Uptycs Inc"
+
+#RUN MKDIR /usr/app
+COPY entrypoint.sh /usr/local/bin/
+COPY ./gateway-ha-1.9.5-jar-with-dependencies.jar /usr/app/gateway-ha-1.9.5-jar-with-dependencies.jar
+
+RUN set -ex;apk update  && \
+    apk add openjdk17 &&  \
+    mkdir -p /opt/uptycs  && \
+    chmod 755 /usr/local/bin/entrypoint.sh  && \
+    mkdir -p /opt/uptycs/prestogateway/logs  && \
+    apk add su-exec
+
+WORKDIR /opt/uptycs/cloud/prestogateway
+#RUN keytool -genkey -alias tomcat -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650 -storepass changeit --dname "CN=uptycs, OU=uptycs, O=uptycs, L=uptycs, S=up, C=up" -noprompt
+
+#EXPOSE 8080
+#EXPOSE 8080
+VOLUME ["/opt/uptycs/prestogateway/config"]
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

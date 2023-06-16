@@ -1,15 +1,14 @@
 routingRules:
-  rulesEngineEnabled: False
-  rulesConfigPath: "/home/ryadav/Downloads/presto-gateway-master/gateway-ha/custom_rules.yml"
+  rulesEngineEnabled: True
+  rulesConfigPath: "/opt/uptycs/prestogateway/config/custom_rules.yml"
 
 requestRouter:
-  port: 8082
+  port: 8081
   name: prestoRouter
   historySize: 1000
   ssl: true
-  keystorePath: /home/ryadav/config/keystore.p12
-  keystorePass: changeit
-
+  keystorePath: /opt/uptycs/prestogateway/config/wildcard.jks
+  keystorePass: sslpassphrase
 
 dataStore:
   jdbcUrl: jdbc:mysql://127.0.0.1:3306/prestogateway?enabledTLSProtocols=TLSv1.2
@@ -20,10 +19,10 @@ dataStore:
 server:
   applicationConnectors:
     - type: http
-      port: 8092
+      port: 8090
   adminConnectors:
     - type: http
-      port: 8093
+      port: 8091
 
 notifier:
   smtpHost: localhost
@@ -56,8 +55,8 @@ logging:
   appenders:
     - type: console
     - type: file
-      currentLogFilename: /var/log/prestoproxy/prestoproxy-java.log
-      archivedLogFilenamePattern: /var/log/prestoproxy/prestoproxy-java-%d{yyyy-MM-dd}-%i.log.gz
+      currentLogFilename: /opt/uptycs/cloud/prestogateway/logs/prestoproxy-java.log
+      archivedLogFilenamePattern: /opt/uptycs/cloud/prestogateway/logs/prestoproxy-java-%d{yyyy-MM-dd}-%i.log.gz
       archivedFileCount: 7
       timeZone: UTC
       maxFileSize: 100MB
