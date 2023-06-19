@@ -27,7 +27,7 @@ pipeline {
                     prestoImage = docker.build("uptycs/presto-gateway:v1.0.0", "--build-arg VERSION=v1.0.0 ./docker/")
                     docker.withRegistry('https://267292272963.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:uptycs-shared-jenkins' ) {
                         prestoImage.push()
-                        prestoImage.push('latest')
+                        prestoImage.push('v1.0.0')
                     }
                 }
             }
