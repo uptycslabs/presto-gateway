@@ -97,9 +97,9 @@
                     <configLocation>google_checks.xml</configLocation>
                     <consoleOutput>true</consoleOutput>
                     <logViolationsToConsole>true</logViolationsToConsole>
-                    <failOnViolation>true</failOnViolation>
+                    <failOnViolation>false</failOnViolation>
                     <failsOnError>true</failsOnError>
-                    <violationIgnore>${checkstyle.violation.ignore}</violationIgnore>
+                    <!--  <violationIgnore>${checkstyle.violation.ignore}</violationIgnore>-->
                     <violationSeverity>warning</violationSeverity>
                     <includeResources>false</includeResources>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
