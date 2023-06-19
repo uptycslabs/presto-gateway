@@ -25,5 +25,6 @@ WORKDIR /opt/uptycs/cloud/prestogateway
 #EXPOSE 8080
 #EXPOSE 8080
 VOLUME ["/opt/uptycs/prestogateway/config"]
+VOLUME ["/opt/uptycs/prestogateway/logs"]
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
