@@ -6,7 +6,7 @@ pipeline {
             agent {
                 docker {
                     image 'maven:3.6.3-jdk-11'
-                    label 'docker-node'
+                    label 'atammana'
                 }
             }
             steps {
