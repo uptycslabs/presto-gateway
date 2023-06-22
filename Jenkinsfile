@@ -1,14 +1,14 @@
 pipeline {
     agent { label 'uptycs' }
-    stages  {
-        stage('Maven Build') {
-                docker {
-                    image 'maven:3.6.3-jdk-11'
-                }
+    stage('Maven Build') {
             steps {
-                sh 'mvn clean package -DskipTests'
-                sh 'cp gateway-ha/target/gateway-ha-1.9.5-jar-with-dependencies.jar docker/gateway-ha-1.9.5-jar-with-dependencies.jar'
-                stash includes: 'docker/*', name: 'mavenbuild'
+                script {
+                    docker.image('maven:3.6.3-jdk-11').inside {
+                        sh 'mvn clean package -DskipTests'
+                        sh 'cp gateway-ha/target/gateway-ha-1.9.5-jar-with-dependencies.jar docker/gateway-ha-1.9.5-jar-with-dependencies.jar'
+                        stash includes: 'docker/*', name: 'mavenbuild'
+                    }
+                }
             }
         }
 
