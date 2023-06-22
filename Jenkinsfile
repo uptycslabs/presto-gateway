@@ -1,13 +1,10 @@
 pipeline {
-    agent none
+    agent { label 'uptycs' }
     stages  {
         stage('Maven Build') {
-            agent {
                 docker {
                     image 'maven:3.6.3-jdk-11'
-                    label 'atammana'
                 }
-            }
             steps {
                 sh 'mvn clean package -DskipTests'
                 sh 'cp gateway-ha/target/gateway-ha-1.9.5-jar-with-dependencies.jar docker/gateway-ha-1.9.5-jar-with-dependencies.jar'
@@ -16,9 +13,6 @@ pipeline {
         }
 
         stage('Docker Image Build') {
-            agent {
-                node { label 'uptycs' }
-            }
             steps {
                 sh '$(aws ecr get-login --registry-ids 267292272963 --region us-east-1 --no-include-email)'
                 unstash 'mavenbuild'
