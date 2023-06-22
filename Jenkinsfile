@@ -1,6 +1,7 @@
 pipeline {
     agent { label 'uptycs' }
-    stage('Maven Build') {
+    stages  {
+        stage('Maven Build') {
             steps {
                 script {
                     docker.image('maven:3.6.3-jdk-11').inside {
@@ -14,11 +15,11 @@ pipeline {
 
         stage('Docker Image Build') {
             steps {
-                sh '$(aws ecr get-login --registry-ids 267292272963 --region us-east-1 --no-include-email)'
-                unstash 'mavenbuild'
-                script{
-                    prestoImage = docker.build("uptycs/presto-gateway:v1.0.0", "--build-arg VERSION=v1.0.0 ./docker/")
-                    docker.withRegistry('https://267292272963.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:uptycs-shared-jenkins' ) {
+                script {
+                    sh '$(aws ecr get-login --registry-ids 267292272963 --region us-east-1 --no-include-email)'
+                    unstash 'mavenbuild'
+                    withDockerRegistry(credentialsId: 'ecr:us-east-1:uptycs-shared-jenkins', url: 'https://267292272963.dkr.ecr.us-east-1.amazonaws.com') {
+                        def prestoImage = docker.build("uptycs/presto-gateway:v1.0.0", "--build-arg VERSION=v1.0.0 ./docker/")
                         prestoImage.push()
                         prestoImage.push('v1.0.0')
                     }
