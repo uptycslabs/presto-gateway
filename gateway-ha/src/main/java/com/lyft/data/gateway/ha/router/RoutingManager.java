@@ -126,29 +126,34 @@ public abstract class RoutingManager {
             executorService.submit(
                 () -> {
 
-                  SSLContext sc = getSSLContext();
-                  HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-
-                  // Create all-trusting host name verifier
-                  HostnameVerifier allHostsValid = new HostnameVerifier() {
-                    public boolean verify(String hostname, SSLSession session) {
-                      return true;
-                    }
-                  };
-
-                  // Install the all-trusting host verifier
-                  HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-
                   URL url = new URL(target);
-                  HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+                  if(url.getProtocol().equalsIgnoreCase("https")){
+                    SSLContext sc = getSSLContext();
+                    HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+                    // Create all-trusting host name verifier
+                    HostnameVerifier allHostsValid = new HostnameVerifier() {
+                      public boolean verify(String hostname, SSLSession session) {
+                        return true;
+                      }
+                    };
+                    // Install the all-trusting host verifier
+                    HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+                    HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
 
+                    conn.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(5));
+                    conn.setReadTimeout((int) TimeUnit.SECONDS.toMillis(5));
+                    conn.setHostnameVerifier(allHostsValid);
+                    conn.setSSLSocketFactory(sc.getSocketFactory());
+                    conn.setRequestMethod(HttpMethod.HEAD);
+                    return conn.getResponseCode();
+                  }else{
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(5));
+                    conn.setReadTimeout((int) TimeUnit.SECONDS.toMillis(5));
+                    conn.setRequestMethod(HttpMethod.HEAD);
+                    return conn.getResponseCode();
+                  }
 
-                  conn.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(5));
-                  conn.setReadTimeout((int) TimeUnit.SECONDS.toMillis(5));
-                  conn.setHostnameVerifier(allHostsValid);
-                  conn.setSSLSocketFactory(sc.getSocketFactory());
-                  conn.setRequestMethod(HttpMethod.HEAD);
-                  return conn.getResponseCode();
                 });
         responseCodes.put(backend.getProxyTo(), call);
       }

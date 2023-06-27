@@ -164,6 +164,7 @@
                 <version>3.0.0</version>
                 <configuration>
                     <skipSource>true</skipSource>
+
                 </configuration>
             </plugin>
             <plugin>
@@ -188,6 +189,7 @@
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <shadedArtifactAttached>true</shadedArtifactAttached>
                     <shadedClassifierName>jar-with-dependencies</shadedClassifierName>
+
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>
