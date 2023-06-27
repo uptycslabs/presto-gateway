@@ -12,6 +12,7 @@ import com.lyft.data.gateway.ha.config.ProxyBackendConfiguration;
 import com.lyft.data.gateway.ha.router.GatewayBackendManager;
 import io.dropwizard.lifecycle.Managed;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -106,31 +107,84 @@ public class ActiveClusterMonitor implements Managed {
   }
 
   private String queryCluster(String target) {
+    try {
+      URL url = new URL(target);
+
+      if(url.getProtocol().equalsIgnoreCase("https")){
+        //make https connection
+        return getHttpsResponse(url, target);
+      }else{
+        return getHttpResponse(url, target);
+      }
+
+
+    } catch (Exception e) {
+      log.error("Error fetching cluster stats from [{}]", target, e);
+    }
+
+    return null;
+  }
+
+
+  public String getHttpsResponse(URL url, String target )  {
     HttpsURLConnection conn = null;
 
     try {
+        SSLContext sc = getSSLContext();
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 
-      SSLContext sc = getSSLContext();
-      HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        // Create all-trusting host name verifier
+        HostnameVerifier allHostsValid = new HostnameVerifier() {
+          public boolean verify(String hostname, SSLSession session) {
+            return true;
+          }
+        };
 
-      // Create all-trusting host name verifier
-      HostnameVerifier allHostsValid = new HostnameVerifier() {
-        public boolean verify(String hostname, SSLSession session) {
-          return true;
-        }
-      };
+        // Install the all-trusting host verifier
+        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
 
-      // Install the all-trusting host verifier
-      HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+        // URL url = new URL(target);
+        conn = (HttpsURLConnection) url.openConnection();
+        conn.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(connectionTimeout));
+        conn.setReadTimeout((int) TimeUnit.SECONDS.toMillis(connectionTimeout));
+        conn.setRequestMethod(HttpMethod.GET);
 
-      URL url = new URL(target);
-      conn = (HttpsURLConnection) url.openConnection();
+        conn.setHostnameVerifier(allHostsValid);
+        conn.setSSLSocketFactory(sc.getSocketFactory());
+        conn.connect();
+        int responseCode = conn.getResponseCode();
+        if (responseCode == HttpStatus.SC_OK) {
+          BufferedReader reader =
+                  new BufferedReader(new InputStreamReader((InputStream) conn.getContent()));
+          StringBuilder sb = new StringBuilder();
+          String line;
+          while ((line = reader.readLine()) != null) {
+            sb.append(line + "\n");
+          }
+
+          return sb.toString();
+      } else {
+        log.warn("Received non 200 response, response code: {}", responseCode);
+      }
+    } catch (Exception e) {
+      log.error("Error fetching cluster stats from [{}]", target, e);
+    } finally {
+      if (conn != null) {
+        conn.disconnect();
+      }
+
+    }
+    return null;
+  }
+
+  public String getHttpResponse(URL url , String target){
+    HttpURLConnection conn = null;
+    try {
+
+      conn = (HttpURLConnection) url.openConnection();
       conn.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(connectionTimeout));
       conn.setReadTimeout((int) TimeUnit.SECONDS.toMillis(connectionTimeout));
       conn.setRequestMethod(HttpMethod.GET);
-
-      conn.setHostnameVerifier(allHostsValid);
-      conn.setSSLSocketFactory(sc.getSocketFactory());
       conn.connect();
       int responseCode = conn.getResponseCode();
       if (responseCode == HttpStatus.SC_OK) {
