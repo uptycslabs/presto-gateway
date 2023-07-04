@@ -5,4 +5,6 @@ if [[ -z $gid || -z $uid   ]]; then
     exit 1
 fi
 
-java  --add-opens java.base/java.lang=ALL-UNNAMED  --add-opens java.base/java.net=ALL-UNNAMED -jar /usr/app/gateway-ha-1.9.5-jar-with-dependencies.jar server /opt/uptycs/prestogateway/config/gateway-ha-config.yml
+echo " JAVA OPTS ${JAVA_OPTS}"
+
+java  ${JAVA_OPTS} --add-opens java.base/java.lang=ALL-UNNAMED  --add-opens java.base/java.net=ALL-UNNAMED -jar /usr/app/gateway-ha-1.9.5-jar-with-dependencies.jar server /opt/uptycs/prestogateway/config/gateway-ha-config.yml
