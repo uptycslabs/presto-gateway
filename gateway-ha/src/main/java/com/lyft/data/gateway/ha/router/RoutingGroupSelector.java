@@ -10,6 +10,7 @@ import org.jeasy.rules.api.Rules;
 import org.jeasy.rules.api.RulesEngine;
 import org.jeasy.rules.core.DefaultRulesEngine;
 import org.jeasy.rules.mvel.MVELRuleFactory;
+import org.jeasy.rules.support.reader.JsonRuleDefinitionReader;
 import org.jeasy.rules.support.reader.YamlRuleDefinitionReader;
 
 /** RoutingGroupSelector provides a way to match an HTTP request to a Gateway routing group. */
@@ -34,8 +35,9 @@ public interface RoutingGroupSelector {
    * to determine the right routing group.
    */
   static RoutingGroupSelector byRoutingRulesEngine(String rulesConfigPath) {
+
     RulesEngine rulesEngine = new DefaultRulesEngine();
-    MVELRuleFactory ruleFactory = new MVELRuleFactory(new YamlRuleDefinitionReader());
+    MVELRuleFactory ruleFactory = rulesConfigPath.contains(".json") ? new MVELRuleFactory(new JsonRuleDefinitionReader()) : new MVELRuleFactory(new YamlRuleDefinitionReader());
 
     return request -> {
       try {
