@@ -56,7 +56,7 @@ public class HaRoutingGroupRuleManager implements RoutingGroupRuleManager {
     public List<Map<String, Object>> getAllRoutingRules() {
         try {
             connectionManager.open();
-            List<RoutingRule> rules = RoutingRule.findAll();
+            List<RoutingRule> rules = RoutingRule.findAll().orderBy("id");
             return RoutingRule.upCast(rules, OBJECT_MAPPER);
 
         } finally {

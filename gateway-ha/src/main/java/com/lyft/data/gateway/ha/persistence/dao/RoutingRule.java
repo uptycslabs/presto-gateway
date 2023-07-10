@@ -14,10 +14,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
-@IdName("name")
+@IdName("id")
 @Table("routing_rule")
 @Cached
 public class RoutingRule extends Model {
+
 
     private static final String name = "name";
     private static final String rule = "rule";
@@ -75,7 +76,7 @@ public class RoutingRule extends Model {
                 .create( name,
                         ruleDetail.get(name).toString(),
                         active,
-                        Boolean.getBoolean(ruleDetail.get(active).toString()),
+                        (Boolean) ruleDetail.get(active),
                         rule,
                         getJsonRule(ruleDetail, objectMapper)).insert();
 
