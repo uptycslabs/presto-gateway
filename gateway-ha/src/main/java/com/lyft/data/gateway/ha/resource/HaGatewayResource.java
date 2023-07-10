@@ -5,6 +5,7 @@ import com.lyft.data.gateway.ha.config.ProxyBackendConfiguration;
 import com.lyft.data.gateway.ha.router.GatewayBackendManager;
 import com.lyft.data.gateway.ha.router.HaGatewayManager;
 
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 
 import javax.ws.rs.Path;
@@ -40,5 +41,12 @@ public class HaGatewayResource {
   public Response removeBackend(String name) {
     ((HaGatewayManager) haGatewayManager).deleteBackend(name);
     return Response.ok().build();
+  }
+
+  @Path("/test")
+  @POST
+  public Response getAll(String name) {
+    //((HaGatewayManager) haGatewayManager).deleteBackend(name);
+    return Response.ok("hello").build();
   }
 }

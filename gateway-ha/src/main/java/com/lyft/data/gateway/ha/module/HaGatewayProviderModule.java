@@ -9,15 +9,7 @@ import com.lyft.data.gateway.ha.config.RequestRouterConfiguration;
 import com.lyft.data.gateway.ha.config.RoutingRulesConfiguration;
 import com.lyft.data.gateway.ha.handler.QueryIdCachingProxyHandler;
 import com.lyft.data.gateway.ha.persistence.JdbcConnectionManager;
-import com.lyft.data.gateway.ha.router.GatewayBackendManager;
-import com.lyft.data.gateway.ha.router.HaGatewayManager;
-import com.lyft.data.gateway.ha.router.HaQueryHistoryManager;
-import com.lyft.data.gateway.ha.router.HaResourceGroupsManager;
-import com.lyft.data.gateway.ha.router.HaRoutingManager;
-import com.lyft.data.gateway.ha.router.QueryHistoryManager;
-import com.lyft.data.gateway.ha.router.ResourceGroupsManager;
-import com.lyft.data.gateway.ha.router.RoutingGroupSelector;
-import com.lyft.data.gateway.ha.router.RoutingManager;
+import com.lyft.data.gateway.ha.router.*;
 import com.lyft.data.proxyserver.ProxyHandler;
 import com.lyft.data.proxyserver.ProxyServer;
 import com.lyft.data.proxyserver.ProxyServerConfiguration;
@@ -31,12 +23,17 @@ public class HaGatewayProviderModule extends AppModule<HaGatewayConfiguration, E
   private final RoutingManager routingManager;
   private final JdbcConnectionManager connectionManager;
 
+
+
+  private final RoutingGroupRuleManager routingGroupRuleManager;
+
   public HaGatewayProviderModule(HaGatewayConfiguration configuration, Environment environment) {
     super(configuration, environment);
     connectionManager = new JdbcConnectionManager(configuration.getDataStore());
     resourceGroupsManager = new HaResourceGroupsManager(connectionManager);
     gatewayBackendManager = new HaGatewayManager(connectionManager);
     queryHistoryManager = new HaQueryHistoryManager(connectionManager);
+    routingGroupRuleManager = new HaRoutingGroupRuleManager(connectionManager);
     routingManager =
         new HaRoutingManager(gatewayBackendManager, (HaQueryHistoryManager) queryHistoryManager);
   }
@@ -52,8 +49,10 @@ public class HaGatewayProviderModule extends AppModule<HaGatewayConfiguration, E
     // Use rules engine if enabled
     RoutingRulesConfiguration routingRulesConfig = getConfiguration().getRoutingRules();
     if (routingRulesConfig.isRulesEngineEnabled()) {
-      String rulesConfigPath = routingRulesConfig.getRulesConfigPath();
-      routingGroupSelector = RoutingGroupSelector.byRoutingRulesEngine(rulesConfigPath);
+     // String rulesConfigPath = routingRulesConfig.getRulesConfigPath();
+      // get routing RUles from db
+      String routingRulesJson = routingGroupRuleManager.getRulesJsonAsString();
+      routingGroupSelector = RoutingGroupSelector.byRoutingRulesEngine(routingGroupRuleManager);
     }
 
     return new QueryIdCachingProxyHandler(
@@ -115,5 +114,11 @@ public class HaGatewayProviderModule extends AppModule<HaGatewayConfiguration, E
   @Singleton
   public JdbcConnectionManager getConnectionManager() {
     return this.connectionManager;
+  }
+
+  @Provides
+  @Singleton
+  public RoutingGroupRuleManager getRoutingGroupRuleManager() {
+    return this.routingGroupRuleManager;
   }
 }

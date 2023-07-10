@@ -6,16 +6,18 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import com.lyft.data.gateway.ha.config.ProxyBackendConfiguration;
 import com.lyft.data.gateway.ha.router.GatewayBackendManager;
-import com.lyft.data.gateway.ha.router.HaResourceGroupsManager;
 import com.lyft.data.gateway.ha.router.ResourceGroupsManager;
 import com.lyft.data.gateway.ha.router.ResourceGroupsManager.ResourceGroupsDetail;
 import com.lyft.data.gateway.ha.router.ResourceGroupsManager.SelectorsDetail;
+import com.lyft.data.gateway.ha.router.RoutingGroupRuleManager;
 import io.dropwizard.views.View;
+//import RoutingGroupRuleManager.RuleDetail;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -38,6 +40,8 @@ public class EntityEditorResource {
   private GatewayBackendManager gatewayBackendManager;
   @Inject
   private ResourceGroupsManager resourceGroupsManager;
+  @Inject
+  private RoutingGroupRuleManager routingGroupRuleManager;
 
   public static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -75,6 +79,12 @@ public class EntityEditorResource {
           ProxyBackendConfiguration backend =
               OBJECT_MAPPER.readValue(jsonPayload, ProxyBackendConfiguration.class);
           gatewayBackendManager.updateBackend(backend);
+          break;
+        case ROUTING_RULE:
+          //TODO: make the gateway backend database sensitive
+          Map<String, Object> rule =
+                  OBJECT_MAPPER.readValue(jsonPayload, Map.class);
+          routingGroupRuleManager.updateRuleDetail(rule);
           break;
         case RESOURCE_GROUP:
           ResourceGroupsDetail resourceGroupDetails = OBJECT_MAPPER.readValue(jsonPayload,
@@ -116,6 +126,8 @@ public class EntityEditorResource {
         return Response.ok(resourceGroupsManager.readAllResourceGroups(database)).build();
       case SELECTOR:
         return Response.ok(resourceGroupsManager.readAllSelectors(database)).build();
+      case ROUTING_RULE:
+        return Response.ok(routingGroupRuleManager.getAllRoutingRules()).build();
       default:
     }
     return Response.ok(ImmutableList.of()).build();

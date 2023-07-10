@@ -48,6 +48,8 @@ public abstract class RoutingManager {
                     return findBackendForUnknownQueryId(queryId);
                   }
                 });
+
+
   }
 
   protected GatewayBackendManager getGatewayBackendManager() {
@@ -101,6 +103,7 @@ public abstract class RoutingManager {
     String backendAddress = null;
     try {
       backendAddress = queryIdBackendCache.get(queryId);
+
     } catch (ExecutionException e) {
       log.error("Exception while loading queryId from cache {}", e.getLocalizedMessage());
     }

@@ -1,6 +1,8 @@
 package com.lyft.data.gateway.ha.router;
 
 import java.io.FileReader;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +20,8 @@ public interface RoutingGroupSelector {
   String ROUTING_GROUP_HEADER = "X-Trino-Routing-Group";
   String ALTERNATE_ROUTING_GROUP_HEADER = "X-Presto-Routing-Group";
 
+
+
   @Slf4j
   final class Logger {}
 
@@ -34,15 +38,18 @@ public interface RoutingGroupSelector {
    * Routing group selector that uses routing engine rules
    * to determine the right routing group.
    */
-  static RoutingGroupSelector byRoutingRulesEngine(String rulesConfigPath) {
+  static RoutingGroupSelector byRoutingRulesEngine(RoutingGroupRuleManager routingGroupRuleManager) {
 
     RulesEngine rulesEngine = new DefaultRulesEngine();
-    MVELRuleFactory ruleFactory = rulesConfigPath.contains(".json") ? new MVELRuleFactory(new JsonRuleDefinitionReader()) : new MVELRuleFactory(new YamlRuleDefinitionReader());
+   // MVELRuleFactory ruleFactory = rulesConfigPath.contains(".json") ? new MVELRuleFactory(new JsonRuleDefinitionReader()) : new MVELRuleFactory(new YamlRuleDefinitionReader());
+    MVELRuleFactory ruleFactory = new MVELRuleFactory(new JsonRuleDefinitionReader());
 
     return request -> {
       try {
+        String routingRulesString = routingGroupRuleManager.getActiveRulesJsonAsString();
+        Reader rulesReader = new StringReader(routingRulesString);
         Rules rules = ruleFactory.createRules(
-            new FileReader(rulesConfigPath));
+                rulesReader);
         Facts facts = new Facts();
         HashMap<String, String> result = new HashMap<String, String>();
         facts.put("request", request);

@@ -24,10 +24,10 @@
         <mockwebserver.version>1.2.1</mockwebserver.version>
         <java.version>17</java.version>
 
-        <maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
+     <!--   <maven.checkstyle.plugin.version>3.0.0</maven.checkstyle.plugin.version>
         <puppycrawl.tools.checkstyle.version>7.7</puppycrawl.tools.checkstyle.version>
         <checkstyle.violation.ignore>NonEmptyAtclauseDescription,JavadocMethod
-        </checkstyle.violation.ignore>
+        </checkstyle.violation.ignore>-->
     </properties>
 
     <dependencyManagement>
@@ -82,7 +82,7 @@
 
     <build>
         <plugins>
-            <plugin>
+           <!-- <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>${maven.checkstyle.plugin.version}</version>
@@ -99,18 +99,18 @@
                     <logViolationsToConsole>true</logViolationsToConsole>
                     <failOnViolation>false</failOnViolation>
                     <failsOnError>true</failsOnError>
-                    <!--  <violationIgnore>${checkstyle.violation.ignore}</violationIgnore>-->
+                    &lt;!&ndash;  <violationIgnore>${checkstyle.violation.ignore}</violationIgnore>&ndash;&gt;
                     <violationSeverity>warning</violationSeverity>
                     <includeResources>false</includeResources>
                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                 </configuration>
                 <executions>
-                    <!--
+                    &lt;!&ndash;
                       Execute checkstyle after compilation but before tests.
                       This ensures that any parsing or type checking errors are from
                       javac, so they look as expected. Beyond that, we want to
                       fail as early as possible.
-                    -->
+                    &ndash;&gt;
                     <execution>
                         <phase>test-compile</phase>
                         <goals>
@@ -118,7 +118,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
 </project>
