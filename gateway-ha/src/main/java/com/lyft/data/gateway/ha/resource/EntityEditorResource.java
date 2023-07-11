@@ -68,6 +68,8 @@ public class EntityEditorResource {
   public Response updateEntity(@QueryParam("entityType") String entityTypeStr,
       @QueryParam("useSchema") String database,
       String jsonPayload) {
+
+
     if (Strings.isNullOrEmpty(entityTypeStr)) {
       throw new WebApplicationException("EntryType can not be null");
     }

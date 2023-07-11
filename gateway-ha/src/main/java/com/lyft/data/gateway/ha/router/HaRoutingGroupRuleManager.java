@@ -82,7 +82,6 @@ public class HaRoutingGroupRuleManager implements RoutingGroupRuleManager {
     public String getRulesJsonAsString() {
         String col = "active";
         List<Map<String, Object>> allActiveRules = getAllRoutingRules().stream()
-                .filter(m -> new Boolean(m.get(col).toString()))
                 .collect(Collectors.toList());
         try {
             return OBJECT_MAPPER.writeValueAsString(allActiveRules);

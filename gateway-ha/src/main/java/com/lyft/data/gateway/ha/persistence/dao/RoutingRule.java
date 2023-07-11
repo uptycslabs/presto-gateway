@@ -14,18 +14,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
-@IdName("id")
 @Table("routing_rule")
+@IdName("id")
 @Cached
 public class RoutingRule extends Model {
-
-
     private static final String name = "name";
     private static final String rule = "rule";
-
     private static final String active = "active";
-
-
     public static List<Map<String, Object>> upCast(List<RoutingRule> routingRules, ObjectMapper objectMapper){
         return routingRules.stream().map(model -> {
             Map<String, Object> ruleMap = new HashMap<>();
@@ -40,28 +35,6 @@ public class RoutingRule extends Model {
 
         }).collect(Collectors.toList());
     }
-
-
-    public static String getRuleJsonString(List<RoutingRule> routingRules, ObjectMapper objectMapper){
-        List<Map<String, Object>> rules =  routingRules.stream().map(model -> {
-            Map<String, Object> ruleMap = new HashMap<>();
-            try {
-                ruleMap = objectMapper.readValue(model.getString(rule), Map.class);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
-            return ruleMap;
-
-        }).collect(Collectors.toList());
-
-        try {
-           return objectMapper.writeValueAsString(rules);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
     public static void update(RoutingRule model, Map<String, Object> ruleDetail, ObjectMapper objectMapper) {
         model
                 .set(name, ruleDetail.get(name))
@@ -79,9 +52,7 @@ public class RoutingRule extends Model {
                         (Boolean) ruleDetail.get(active),
                         rule,
                         getJsonRule(ruleDetail, objectMapper)).insert();
-
     }
-
 
     public static String getJsonRule(Map<String, Object> ruleDetail, ObjectMapper objectMapper) {
         ruleDetail.remove(active);
@@ -91,7 +62,4 @@ public class RoutingRule extends Model {
             throw new RuntimeException(e);
         }
     }
-
-
-
 }

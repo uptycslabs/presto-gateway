@@ -16,6 +16,7 @@ dataStore:
   user: root
   password: root123
   driver: com.mysql.cj.jdbc.Driver
+  queryHistoryRetentionHrs: 24
 
 server:
   applicationConnectors:
