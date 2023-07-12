@@ -57,8 +57,8 @@ logging:
   appenders:
     - type: console
     - type: file
-      currentLogFilename: /var/log/prestoproxy/prestoproxy-java.log
-      archivedLogFilenamePattern: /var/log/prestoproxy/prestoproxy-java-%d{yyyy-MM-dd}-%i.log.gz
+      currentLogFilename: /tmp/log/prestoproxy/prestoproxy-java.log
+      archivedLogFilenamePattern: /tmp/log/prestoproxy/prestoproxy-java-%d{yyyy-MM-dd}-%i.log.gz
       archivedFileCount: 7
       timeZone: UTC
       maxFileSize: 100MB

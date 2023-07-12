@@ -3,7 +3,7 @@
       <key-type>java.lang.String</key-type>
       <value-type>java.lang.Object</value-type>
       <expiry>
-        <ttl unit="seconds">10</ttl>
+        <ttl unit="seconds">900</ttl>
       </expiry>
       <resources>
         <heap unit="entries">1000</heap>

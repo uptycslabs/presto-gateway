@@ -1,7 +1,5 @@
 package com.lyft.data.gateway.ha.router;
 
-import lombok.*;
-
 import java.util.List;
 import java.util.Map;
 
@@ -13,9 +11,6 @@ public interface RoutingGroupRuleManager {
 
     public List<Map<String, Object>> getAllRoutingRules();
 
-
-
-
     void deleteRoutingRule(String name);
 
      String getRulesJsonAsString();
@@ -23,20 +18,4 @@ public interface RoutingGroupRuleManager {
     String getActiveRulesJsonAsString();
 
 
-
-
-    @Data
-    @ToString
-    @RequiredArgsConstructor
-    class RuleDetail {
-        @NonNull private String name;
-        @NonNull private String rule;
-        private Boolean active;
-        public RuleDetail() {}
-        public RuleDetail(String name, String rule, Boolean active){
-            this.name = name;
-            this.rule = rule;
-            this.active = active;
-        }
-    }
 }
