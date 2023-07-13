@@ -1,6 +1,5 @@
 routingRules:
   rulesEngineEnabled: True
-  rulesConfigPath: "/home/ryadav/Downloads/presto-gateway-master/gateway-ha/custom_rules.yml"
 
 requestRouter:
   port: 8084
