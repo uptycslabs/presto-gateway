@@ -188,11 +188,11 @@ public class TestPrestoQueueLengthRoutingTable {
         Map<String, Integer> routingDistribution = routeQueries(mockRoutingGroup, numRequests);
 
         // Useful for debugging
-        //System.out.println("Input :" + clusterQueueMap.toString() + " Num of Requests:"
-        //    + numRequests
-        //    + " Internal Routing table: "
-        //    + routingTable.getInternalWeightedRoutingTable(mockRoutingGroup).toString()
-        //    + " Distribution: " + routingDistribution.toString());
+        System.out.println("Input :" + clusterQueueMap.toString() + " Num of Requests:"
+           + numRequests
+            + " Internal Routing table: "
+           + routingTable.getInternalWeightedRoutingTable(mockRoutingGroup).toString()
+           + " Distribution: " + routingDistribution.toString());
         if (numBk > 1) {
           if (routingDistribution.containsKey(mockRoutingGroup + (numBk - 1))) {
             assert routingDistribution.get(mockRoutingGroup + (numBk - 1))
@@ -220,11 +220,11 @@ public class TestPrestoQueueLengthRoutingTable {
         Map<String, Integer> routingDistribution = routeQueries(mockRoutingGroup, numRequests);
 
         // Useful Debugging Info
-        //System.out.println("Input :" + clusterQueueMap.toString() + " Num of Requests:"
-        //    + numRequests
-        //    + " Internal Routing table: "
-        //    + routingTable.getInternalWeightedRoutingTable(mockRoutingGroup).toString()
-        //    + " Distribution: " + routingDistribution.toString());
+        System.out.println("Input :" + clusterQueueMap.toString() + " Num of Requests:"
+           + numRequests
+         + " Internal Routing table: "
+         + routingTable.getInternalWeightedRoutingTable(mockRoutingGroup).toString()
+         + " Distribution: " + routingDistribution.toString());
         if (numBk > 2 && routingDistribution.containsKey(mockRoutingGroup + (numBk - 1))) {
           assert routingDistribution.get(mockRoutingGroup + (numBk - 1))
               <= Math.ceil(numRequests / numBk);

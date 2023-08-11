@@ -30,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
 
+
+
   private static final Random RANDOM = new Random();
   private static final int MIN_WT = 1;
   private static final int MAX_WT = 100;
@@ -208,7 +210,7 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
           }
         }
       }
-
+      log.info("clusterQueueLengthMap *** "+clusterQueueLengthMap.toString());
       computeWeightsBasedOnQueueLength(clusterQueueLengthMap);
     }
   }
@@ -327,12 +329,26 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
     }
   }
 
+  public String getEligibleBackEnd(String routingGroup) {
+
+
+    // Looks up the closest weight to random number generated for a given routing group.
+    if (routingGroupWeightSum.containsKey(routingGroup)
+            && weightedDistributionRouting.containsKey(routingGroup)) {
+      int rnd = RANDOM.nextInt(routingGroupWeightSum.get(routingGroup));
+      return weightedDistributionRouting.get(routingGroup).higherEntry(rnd).getValue();
+    } else {
+      return null;
+    }
+  }
+
   /**
    * Performs routing to a given cluster group. This falls back to an adhoc backend, if no scheduled
    * backend is found.
    */
   @Override
   public String provideBackendForRoutingGroup(String routingGroup, String user) {
+    log.info("call from PrestoQueueLengthRoutingTable ");
     List<ProxyBackendConfiguration> backends =
         getGatewayBackendManager().getActiveBackends(routingGroup);
 
@@ -345,7 +361,8 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
     }
 
     updateRoutingTable(routingGroup, proxyMap.keySet());
-    String clusterId = getEligibleBackEnd(routingGroup, user);
+    //skipping user based distribution
+    String clusterId = getEligibleBackEnd(routingGroup,  null);
     log.debug("Routing to eligible backend : [{}] for routing group: [{}]",
         clusterId, routingGroup);
 
@@ -366,6 +383,7 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
    */
   @Override
   public String provideAdhocBackend(String user) {
+    log.info("call from QueueLengthRouting manager");
     Map<String, String> proxyMap = new HashMap<>();
     List<ProxyBackendConfiguration> backends = getGatewayBackendManager().getActiveAdhocBackends();
     if (backends.size() == 0) {
@@ -378,7 +396,8 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
 
     updateRoutingTable("adhoc", proxyMap.keySet());
 
-    String clusterId = getEligibleBackEnd("adhoc", user);
+    //skipping user based distribution
+    String clusterId = getEligibleBackEnd("adhoc", null);
     log.debug("Routing to eligible backend : " + clusterId + " for routing group: adhoc");
     if (clusterId != null) {
       return proxyMap.get(clusterId);

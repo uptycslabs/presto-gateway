@@ -35,7 +35,7 @@ public class HaGatewayProviderModule extends AppModule<HaGatewayConfiguration, E
     queryHistoryManager = new HaQueryHistoryManager(connectionManager);
     routingGroupRuleManager = new HaRoutingGroupRuleManager(connectionManager);
     routingManager =
-        new HaRoutingManager(gatewayBackendManager, (HaQueryHistoryManager) queryHistoryManager);
+        new PrestoQueueLengthRoutingTable(gatewayBackendManager, (HaQueryHistoryManager) queryHistoryManager);
   }
 
   protected ProxyHandler getProxyHandler() {
