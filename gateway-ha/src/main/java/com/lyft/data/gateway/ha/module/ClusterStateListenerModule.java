@@ -5,10 +5,13 @@ import com.google.inject.Singleton;
 import com.lyft.data.baseapp.AppModule;
 import com.lyft.data.gateway.ha.clustermonitor.HealthChecker;
 import com.lyft.data.gateway.ha.clustermonitor.PrestoClusterStatsObserver;
+import com.lyft.data.gateway.ha.clustermonitor.PrestoQueueLengthChecker;
 import com.lyft.data.gateway.ha.config.HaGatewayConfiguration;
 import com.lyft.data.gateway.ha.config.MonitorConfiguration;
 import com.lyft.data.gateway.ha.config.NotifierConfiguration;
 import com.lyft.data.gateway.ha.notifier.EmailNotifier;
+import com.lyft.data.gateway.ha.persistence.JdbcConnectionManager;
+import com.lyft.data.gateway.ha.router.*;
 import io.dropwizard.setup.Environment;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +20,16 @@ public class ClusterStateListenerModule extends AppModule<HaGatewayConfiguration
   List<PrestoClusterStatsObserver> observers;
   MonitorConfiguration monitorConfig;
 
+  private final PrestoQueueLengthRoutingTable routingManager;
+  private final JdbcConnectionManager connectionManager;
+
   public ClusterStateListenerModule(HaGatewayConfiguration config, Environment env) {
     super(config, env);
     monitorConfig = config.getMonitor();
+    connectionManager = new JdbcConnectionManager(config.getDataStore());
+
+    routingManager =
+            new PrestoQueueLengthRoutingTable( new HaGatewayManager(connectionManager), (HaQueryHistoryManager)  new HaQueryHistoryManager(connectionManager));
   }
 
   /**
@@ -34,6 +44,7 @@ public class ClusterStateListenerModule extends AppModule<HaGatewayConfiguration
     observers = new ArrayList<>();
     NotifierConfiguration notifierConfiguration = getConfiguration().getNotifier();
     observers.add(new HealthChecker(new EmailNotifier(notifierConfiguration)));
+    observers.add(new PrestoQueueLengthChecker(routingManager));
     return observers;
   }
 
