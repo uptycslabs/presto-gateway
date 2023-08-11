@@ -77,7 +77,6 @@ public class ActiveClusterMonitor implements Managed {
                   gatewayBackendManager.getAllActiveBackends();
               List<Future<ClusterStats>> futures = new ArrayList<>();
               for (ProxyBackendConfiguration backend : activeClusters) {
-                log.info(" Getting stats for {} , {} ",backend.getProxyTo(), backend.getExternalUrl());
                 Future<ClusterStats> call =
                     executorService.submit(() -> getPrestoClusterStats(backend));
                 futures.add(call);
@@ -90,7 +89,6 @@ public class ActiveClusterMonitor implements Managed {
 
               if (clusterStatsObservers != null) {
                 for (PrestoClusterStatsObserver observer : clusterStatsObservers) {
-                  log.info("Calling observe for observer "+observer.getClass().getName());
                   observer.observe(stats);
                 }
               }

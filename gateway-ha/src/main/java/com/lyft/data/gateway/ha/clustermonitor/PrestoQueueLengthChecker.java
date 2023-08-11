@@ -22,8 +22,6 @@ public class PrestoQueueLengthChecker implements PrestoClusterStatsObserver {
 
   @Override
   public void observe(List<ClusterStats> stats) {
-
-    log.info(" call from observer PrestoQueueLengthChecker");
     Map<String, Map<String, Integer>> clusterQueueMap = new HashMap<String, Map<String, Integer>>();
     Map<String, Map<String, Integer>> clusterRunningMap
             = new HashMap<String, Map<String, Integer>>();
@@ -67,7 +65,6 @@ public class PrestoQueueLengthChecker implements PrestoClusterStatsObserver {
       }
     }
 
-    log.info(" clusterQueueMap "+clusterQueueMap.toString() +" routingManager "+routingManager);
     routingManager.updateRoutingTable(clusterQueueMap, clusterRunningMap, userClusterQueuedCount);
   }
 }
