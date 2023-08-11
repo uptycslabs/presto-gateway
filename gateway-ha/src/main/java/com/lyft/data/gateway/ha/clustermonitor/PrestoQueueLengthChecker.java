@@ -1,6 +1,8 @@
 package com.lyft.data.gateway.ha.clustermonitor;
 
 import com.lyft.data.gateway.ha.router.PrestoQueueLengthRoutingTable;
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,6 +11,7 @@ import java.util.Map;
  * Updates the QueueLength Based Routing Manager {@link PrestoQueueLengthRoutingTable} with
  * updated queue lengths of active clusters.
  */
+@Slf4j
 public class PrestoQueueLengthChecker implements PrestoClusterStatsObserver {
 
   PrestoQueueLengthRoutingTable routingManager;
@@ -19,6 +22,8 @@ public class PrestoQueueLengthChecker implements PrestoClusterStatsObserver {
 
   @Override
   public void observe(List<ClusterStats> stats) {
+
+    log.info(" call from observer PrestoQueueLengthChecker");
     Map<String, Map<String, Integer>> clusterQueueMap = new HashMap<String, Map<String, Integer>>();
     Map<String, Map<String, Integer>> clusterRunningMap
             = new HashMap<String, Map<String, Integer>>();
@@ -27,6 +32,7 @@ public class PrestoQueueLengthChecker implements PrestoClusterStatsObserver {
 
     for (ClusterStats stat : stats) {
       if (!stat.isHealthy()) {
+        log.info(stat.getClusterId() + " "+stat.getRoutingGroup() +" cluster is unhealthy");
         // Skip if the cluster isn't healthy
         continue;
       }
@@ -61,6 +67,7 @@ public class PrestoQueueLengthChecker implements PrestoClusterStatsObserver {
       }
     }
 
+    log.info(" clusterQueueMap "+clusterQueueMap.toString() +" routingManager "+routingManager);
     routingManager.updateRoutingTable(clusterQueueMap, clusterRunningMap, userClusterQueuedCount);
   }
 }

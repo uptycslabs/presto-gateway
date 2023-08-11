@@ -115,6 +115,8 @@ public class QueryIdCachingProxyHandler extends ProxyHandler {
     /* Here comes the load balancer / gateway */
     String backendAddress = "http://localhost:" + serverApplicationPort;
 
+    log.info("routingmanager "+routingManager);
+
     // Only load balance presto query APIs.
     if (isPathWhiteListed(request.getRequestURI())) {
       String queryId = extractQueryIdIfPresent(request);
@@ -157,7 +159,7 @@ public class QueryIdCachingProxyHandler extends ProxyHandler {
             + request.getRequestURI()
             + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
 
-    log.info("Rerouting [{}]--> [{}]", originalLocation, targetLocation);
+    log.info("Rerouting [{}]--> [{}] {}", originalLocation, targetLocation , backendAddress);
     return targetLocation;
   }
 

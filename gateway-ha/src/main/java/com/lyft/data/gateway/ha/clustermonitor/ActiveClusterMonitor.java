@@ -90,6 +90,7 @@ public class ActiveClusterMonitor implements Managed {
 
               if (clusterStatsObservers != null) {
                 for (PrestoClusterStatsObserver observer : clusterStatsObservers) {
+                  log.info("Calling observe for observer "+observer.getClass().getName());
                   observer.observe(stats);
                 }
               }

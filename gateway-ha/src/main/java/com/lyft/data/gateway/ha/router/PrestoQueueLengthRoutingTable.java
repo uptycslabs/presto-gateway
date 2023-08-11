@@ -43,6 +43,8 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
 
   private Map<String, TreeMap<Integer, String>> weightedDistributionRouting;
 
+  private static PrestoQueueLengthRoutingTable prestoQueueLengthRoutingTable = null;
+
   /**
    * A Routing Manager that distributes queries according to assigned weights based on
    * Presto cluster queue length and falls back to Running Count if queue length are equal.
@@ -55,6 +57,18 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
     weightedDistributionRouting = new HashMap<String, TreeMap<Integer, String>>();
     userClusterQueueLengthMap = new ConcurrentHashMap<>();
   }
+
+
+  public static PrestoQueueLengthRoutingTable getInstance(GatewayBackendManager gatewayBackendManager,
+                            QueryHistoryManager queryHistoryManager){
+    if(prestoQueueLengthRoutingTable ==null) {
+      prestoQueueLengthRoutingTable = new PrestoQueueLengthRoutingTable(gatewayBackendManager, queryHistoryManager);
+    }
+    return prestoQueueLengthRoutingTable;
+
+  }
+
+
 
   /**
    * All wts are assigned as a fraction of maxQueueLn. Cluster with maxQueueLn should be
@@ -193,6 +207,7 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
    * updateRoutingTable}
    */
   public void updateRoutingTable(String routingGroup, Set<String> backends) {
+
     synchronized (lockObject) {
       if (clusterQueueLengthMap.containsKey(routingGroup)) {
         log.debug("Update routing table for routing group : [{}]"
@@ -406,5 +421,9 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
       int backendId = Math.abs(RANDOM.nextInt()) % backends.size();
       return backends.get(backendId).getProxyTo();
     }
+  }
+
+  public static void cleanInstance(){
+    prestoQueueLengthRoutingTable =null;
   }
 }

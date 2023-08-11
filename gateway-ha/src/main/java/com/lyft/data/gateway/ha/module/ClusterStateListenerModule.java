@@ -29,7 +29,7 @@ public class ClusterStateListenerModule extends AppModule<HaGatewayConfiguration
     connectionManager = new JdbcConnectionManager(config.getDataStore());
 
     routingManager =
-            new PrestoQueueLengthRoutingTable( new HaGatewayManager(connectionManager), (HaQueryHistoryManager)  new HaQueryHistoryManager(connectionManager));
+             PrestoQueueLengthRoutingTable.getInstance( new HaGatewayManager(connectionManager), (HaQueryHistoryManager)  new HaQueryHistoryManager(connectionManager));
   }
 
   /**
@@ -43,6 +43,7 @@ public class ClusterStateListenerModule extends AppModule<HaGatewayConfiguration
   public List<PrestoClusterStatsObserver> getClusterStatsObservers() {
     observers = new ArrayList<>();
     NotifierConfiguration notifierConfiguration = getConfiguration().getNotifier();
+
     observers.add(new HealthChecker(new EmailNotifier(notifierConfiguration)));
     observers.add(new PrestoQueueLengthChecker(routingManager));
     return observers;

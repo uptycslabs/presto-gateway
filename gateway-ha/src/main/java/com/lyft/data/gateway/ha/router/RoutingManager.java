@@ -55,7 +55,9 @@ public abstract class RoutingManager {
   protected GatewayBackendManager getGatewayBackendManager() {
     return gatewayBackendManager;
   }
-
+  protected void setGatewayBackendManager(GatewayBackendManager gatewayBackendManager) {
+    this.gatewayBackendManager = gatewayBackendManager;
+  }
   public void setBackendForQueryId(String queryId, String backend) {
     queryIdBackendCache.put(queryId, backend);
   }

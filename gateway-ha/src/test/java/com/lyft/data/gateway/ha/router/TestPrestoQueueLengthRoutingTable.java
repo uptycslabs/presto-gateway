@@ -48,7 +48,7 @@ public class TestPrestoQueueLengthRoutingTable {
     backendManager = new HaGatewayManager(connectionManager);
     historyManager = new HaQueryHistoryManager(connectionManager) {
     };
-    routingTable = new PrestoQueueLengthRoutingTable(backendManager, historyManager);
+    routingTable =  new PrestoQueueLengthRoutingTable(backendManager, historyManager);
 
     for (String grp : mockRoutingGroups) {
       addMockBackends(grp, NUM_BACKENDS, 0);
@@ -341,13 +341,13 @@ public class TestPrestoQueueLengthRoutingTable {
         Map<String, Integer> routingDistribution = routeQueries(mockRoutingGroup, numRequests);
 
         //Useful Debugging Info
-        /*
         System.out.println("Input :" + clusterRunningMap.toString() + " Num of Requests:" +
         numRequests
         + " Internal Routing table: " + routingTable.getInternalWeightedRoutingTable
         (mockRoutingGroup).toString()
         + " Distribution: " + routingDistribution.toString());
-        */
+
+
         if (numBk > 2 && routingDistribution.containsKey(mockRoutingGroup + (numBk - 1))) {
           assert routingDistribution.get(mockRoutingGroup + (numBk - 1))
                   <= Math.ceil(numRequests / numBk);
