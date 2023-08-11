@@ -19,7 +19,7 @@ RUN set -ex;apk update  && \
     mkdir -p /opt/uptycs/prestogateway/logs  && \
     apk add su-exec
 
-WORKDIR /opt/uptycs/cloud/prestogateway
+WORKDIR /opt/uptycs/prestogateway
 #RUN keytool -genkey -alias tomcat -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650 -storepass changeit --dname "CN=uptycs, OU=uptycs, O=uptycs, L=uptycs, S=up, C=up" -noprompt
 
 #EXPOSE 8080
