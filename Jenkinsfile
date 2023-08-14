@@ -25,19 +25,15 @@ pipeline {
                 }
             }
         }
-    timeout(unit: 'MINUTES', time: 10) {
-      stage("upload-to-s3") {
-
-        BUCKET_NAME = "uptycs-builds-2"
-        S3_CP_ARGS  = "--acl bucket-owner-full-control"
-
+      stage('upload-to-s3') {
+          steps {
         dir("${WORKSPACE}") {
           sh"""
             ls -ltr
-            aws s3 cp application jar s3://${BUCKET_NAME}/uptycslabs-presto-gateway/ ${S3_CP_ARGS}
+            aws s3 cp application jar s3://uptycs-builds-2/uptycslabs-presto-gateway/ --acl bucket-owner-full-control
           """
         }
+          }
       } // upload-to-s3
-    }
     }
 }
