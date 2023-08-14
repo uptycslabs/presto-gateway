@@ -33,7 +33,7 @@ pipeline {
         dir("${WORKSPACE}") {
           sh"""
             ls -ltr
-            aws s3 cp application jar s3://${BUCKET_NAME}/presto-gateway/ ${S3_CP_ARGS}
+            aws s3 cp application jar s3://${BUCKET_NAME}/uptycslabs-presto-gateway/ ${S3_CP_ARGS}
           """
         }
       } // upload-to-s3
