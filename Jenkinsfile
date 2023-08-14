@@ -25,6 +25,7 @@ pipeline {
                 }
             }
         }
+    timeout(unit: 'MINUTES', time: 10) {
       stage("upload-to-s3") {
 
         BUCKET_NAME = "uptycs-builds-2"
@@ -37,5 +38,6 @@ pipeline {
           """
         }
       } // upload-to-s3
+    }
     }
 }
