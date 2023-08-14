@@ -26,10 +26,10 @@ pipeline {
             }
         }
       stage('upload-to-s3') {
-        BUCKET_NAME = "uptycs-builds-2"
-        S3_CP_ARGS  = "--acl bucket-owner-full-control"
           steps {
         dir("${WORKSPACE}") {
+        BUCKET_NAME = "uptycs-builds-2"
+        S3_CP_ARGS  = "--acl bucket-owner-full-control"
           sh"""
             ls -ltr
             aws s3 cp gateway-ha/target/gateway-ha-1.9.5-jar-with-dependencies.jar s3://${BUCKET_NAME}/onprem-registry-scan-installer/ ${S3_CP_ARGS}
