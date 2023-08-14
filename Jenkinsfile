@@ -25,5 +25,17 @@ pipeline {
                 }
             }
         }
+      stage("upload-to-s3") {
+
+        BUCKET_NAME = "uptycs-builds-2"
+        S3_CP_ARGS  = "--acl bucket-owner-full-control"
+
+        dir("${WORKSPACE}") {
+          sh"""
+            ls -ltr
+            aws s3 cp application jar s3://${BUCKET_NAME}/presto-gateway/ ${S3_CP_ARGS}
+          """
+        }
+      } // upload-to-s3
     }
 }
