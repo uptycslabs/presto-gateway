@@ -17,10 +17,10 @@ pipeline {
                 sh '$(aws ecr get-login --registry-ids 267292272963 --region us-east-1 --no-include-email)'
                 unstash 'mavenbuild'
                 script{
-                    prestoImage = docker.build("uptycs/presto-gateway:v1.0.7.c2", "--build-arg VERSION=v1.0.7.c2 ./docker/")
+                    prestoImage = docker.build("uptycs/presto-gateway:v1.0.6", "--build-arg VERSION=v1.0.6 ./docker/")
                     docker.withRegistry('https://267292272963.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:uptycs-shared-jenkins' ) {
                         prestoImage.push()
-                        prestoImage.push('v1.0.7.c2')
+                        prestoImage.push('v1.0.6')
                     }
                 }
             }

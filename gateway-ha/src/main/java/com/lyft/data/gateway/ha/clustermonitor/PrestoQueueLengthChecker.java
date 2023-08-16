@@ -30,7 +30,7 @@ public class PrestoQueueLengthChecker implements PrestoClusterStatsObserver {
 
     for (ClusterStats stat : stats) {
       if (!stat.isHealthy()) {
-        log.info(stat.getClusterId() + " "+stat.getRoutingGroup() +" cluster is unhealthy");
+        //log.info(stat.getClusterId() + " "+stat.getRoutingGroup() +" cluster is unhealthy");
         // Skip if the cluster isn't healthy
         continue;
       }
