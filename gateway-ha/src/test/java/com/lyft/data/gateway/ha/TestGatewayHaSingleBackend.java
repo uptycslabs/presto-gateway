@@ -2,6 +2,7 @@ package com.lyft.data.gateway.ha;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
+import com.lyft.data.gateway.ha.router.PrestoQueueLengthRoutingTable;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -51,6 +52,7 @@ public class TestGatewayHaSingleBackend {
 
   @AfterClass(alwaysRun = true)
   public void cleanup() {
+    PrestoQueueLengthRoutingTable.cleanInstance();
     backend.stop();
   }
 }

@@ -30,6 +30,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
 
+
+
   private static final Random RANDOM = new Random();
   private static final int MIN_WT = 1;
   private static final int MAX_WT = 100;
@@ -40,6 +42,8 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
   private ConcurrentHashMap<String, ConcurrentHashMap<String, Integer>> userClusterQueueLengthMap;
 
   private Map<String, TreeMap<Integer, String>> weightedDistributionRouting;
+
+  private static PrestoQueueLengthRoutingTable prestoQueueLengthRoutingTable = null;
 
   /**
    * A Routing Manager that distributes queries according to assigned weights based on
@@ -53,6 +57,18 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
     weightedDistributionRouting = new HashMap<String, TreeMap<Integer, String>>();
     userClusterQueueLengthMap = new ConcurrentHashMap<>();
   }
+
+
+  public static PrestoQueueLengthRoutingTable getInstance(GatewayBackendManager gatewayBackendManager,
+                            QueryHistoryManager queryHistoryManager){
+    if(prestoQueueLengthRoutingTable ==null) {
+      prestoQueueLengthRoutingTable = new PrestoQueueLengthRoutingTable(gatewayBackendManager, queryHistoryManager);
+    }
+    return prestoQueueLengthRoutingTable;
+
+  }
+
+
 
   /**
    * All wts are assigned as a fraction of maxQueueLn. Cluster with maxQueueLn should be
@@ -191,6 +207,7 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
    * updateRoutingTable}
    */
   public void updateRoutingTable(String routingGroup, Set<String> backends) {
+
     synchronized (lockObject) {
       if (clusterQueueLengthMap.containsKey(routingGroup)) {
         log.debug("Update routing table for routing group : [{}]"
@@ -327,12 +344,15 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
     }
   }
 
+
+
   /**
    * Performs routing to a given cluster group. This falls back to an adhoc backend, if no scheduled
    * backend is found.
    */
   @Override
   public String provideBackendForRoutingGroup(String routingGroup, String user) {
+
     List<ProxyBackendConfiguration> backends =
         getGatewayBackendManager().getActiveBackends(routingGroup);
 
@@ -345,7 +365,8 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
     }
 
     updateRoutingTable(routingGroup, proxyMap.keySet());
-    String clusterId = getEligibleBackEnd(routingGroup, user);
+    //skipping user based distribution
+    String clusterId = getEligibleBackEnd(routingGroup,  null);
     log.debug("Routing to eligible backend : [{}] for routing group: [{}]",
         clusterId, routingGroup);
 
@@ -366,6 +387,7 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
    */
   @Override
   public String provideAdhocBackend(String user) {
+
     Map<String, String> proxyMap = new HashMap<>();
     List<ProxyBackendConfiguration> backends = getGatewayBackendManager().getActiveAdhocBackends();
     if (backends.size() == 0) {
@@ -378,7 +400,8 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
 
     updateRoutingTable("adhoc", proxyMap.keySet());
 
-    String clusterId = getEligibleBackEnd("adhoc", user);
+    //skipping user based distribution
+    String clusterId = getEligibleBackEnd("adhoc", null);
     log.debug("Routing to eligible backend : " + clusterId + " for routing group: adhoc");
     if (clusterId != null) {
       return proxyMap.get(clusterId);
@@ -387,5 +410,9 @@ public class PrestoQueueLengthRoutingTable extends HaRoutingManager {
       int backendId = Math.abs(RANDOM.nextInt()) % backends.size();
       return backends.get(backendId).getProxyTo();
     }
+  }
+
+  public static void cleanInstance(){
+    prestoQueueLengthRoutingTable =null;
   }
 }
