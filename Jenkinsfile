@@ -18,12 +18,19 @@ pipeline {
                 unstash 'mavenbuild'
                 script{
                     prestoImage = docker.build("uptycs/presto-gateway:v1.0.6", "--build-arg VERSION=v1.0.6 ./docker/")
-                    docker.withRegistry('https://267292272963.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:uptycs-shared-jenkins' ) {
-                        prestoImage.push()
-                        prestoImage.push('v1.0.6')
                     }
                 }
             }
         }
+      stage('upload-to-s3') {
+        steps {
+        dir("${WORKSPACE}") {
+          sh"""
+            ls -ltr
+            aws s3 cp gateway-ha/target/gateway-ha-1.9.5-jar-with-dependencies.jar s3://uptycs-builds-2/uptycslabs-presto-gateway/ --acl bucket-owner-full-control
+          """
+            }
+        }
+      } // upload-to-s3
     }
 }
