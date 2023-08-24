@@ -17,5 +17,9 @@ public interface RoutingGroupRuleManager {
 
     String getActiveRulesJsonAsString();
 
+    void deactivateRule(String ruleName);
+
+    void activateRule(String ruleName);
+
 
 }

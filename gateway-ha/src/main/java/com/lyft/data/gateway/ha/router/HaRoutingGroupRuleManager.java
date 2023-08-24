@@ -3,6 +3,7 @@ package com.lyft.data.gateway.ha.router;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lyft.data.gateway.ha.persistence.JdbcConnectionManager;
+import com.lyft.data.gateway.ha.persistence.dao.GatewayBackend;
 import com.lyft.data.gateway.ha.persistence.dao.RoutingRule;
 import lombok.extern.slf4j.Slf4j;
 
@@ -109,6 +110,26 @@ public class HaRoutingGroupRuleManager implements RoutingGroupRuleManager {
             return json;
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public void deactivateRule(String ruleName) {
+        try {
+            connectionManager.open();
+            RoutingRule.findFirst("name = ?", ruleName).set("active", false).saveIt();
+        } finally {
+            connectionManager.close();
+        }
+    }
+
+    @Override
+    public void activateRule(String ruleName) {
+        try {
+            connectionManager.open();
+            RoutingRule.findFirst("name = ?", ruleName).set("active", true).saveIt();
+        } finally {
+            connectionManager.close();
         }
     }
 }

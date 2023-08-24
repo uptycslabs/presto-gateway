@@ -5,10 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Inject;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
@@ -73,6 +70,37 @@ public class RoutingGroupRuleResource {
     public Response deleteRoutingRule(String name) {
         routingGroupRuleManager.deleteRoutingRule(name);
         return Response.ok().build();
+    }
+
+    @POST
+    @Path("/rules/deactivate/{name}")
+    public Response deactivateRules(@PathParam("name") String name) {
+        try {
+            this.routingGroupRuleManager.deactivateRule(name);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return throwError(e);
+        }
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/rules/activate/{name}")
+    public Response activateBackend(@PathParam("name") String name) {
+        try {
+            this.routingGroupRuleManager.activateRule(name);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return throwError(e);
+        }
+        return Response.ok().build();
+    }
+
+    private Response throwError(Exception e) {
+        return Response.status(Response.Status.NOT_FOUND)
+                .entity(e.getMessage())
+                .type("text/plain")
+                .build();
     }
 
 

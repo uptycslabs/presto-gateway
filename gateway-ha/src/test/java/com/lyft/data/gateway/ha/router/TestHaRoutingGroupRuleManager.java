@@ -121,6 +121,36 @@ public class TestHaRoutingGroupRuleManager {
 
     }
 
+    @Test(dependsOnMethods = {"testDeleteRule"})
+    public void testDeactiveRule() {
+        List<Map<String, Object>> allRules =  haRoutingGroupRuleManager.getAllRoutingRules();
+        Assert.assertEquals(allRules.size(), 1);
+        Assert.assertEquals(allRules.get(0).get("name").toString(), "airflow1");
+        haRoutingGroupRuleManager.deactivateRule("airflow1");
+         allRules =  haRoutingGroupRuleManager.getAllRoutingRules();
+        Assert.assertEquals(allRules.size(), 1);
+        Assert.assertEquals(allRules.get(0).get("name").toString(), "airflow1");
+        Assert.assertEquals(allRules.get(0).get("active").toString(), "false");
+
+
+    }
+
+    @Test(dependsOnMethods = {"testDeactiveRule"})
+    public void testActivateRule() {
+        List<Map<String, Object>> allRules =  haRoutingGroupRuleManager.getAllRoutingRules();
+        Assert.assertEquals(allRules.size(), 1);
+        Assert.assertEquals(allRules.get(0).get("name").toString(), "airflow1");
+        Assert.assertEquals(allRules.get(0).get("active").toString(), "false");
+
+        haRoutingGroupRuleManager.activateRule("airflow1");
+        allRules =  haRoutingGroupRuleManager.getAllRoutingRules();
+        Assert.assertEquals(allRules.size(), 1);
+        Assert.assertEquals(allRules.get(0).get("name").toString(), "airflow1");
+        Assert.assertEquals(allRules.get(0).get("active").toString(), "true");
+
+
+    }
+
 
     @AfterClass(alwaysRun = true)
     public void cleanUp() {}
