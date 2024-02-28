@@ -38,7 +38,7 @@ public class HaGatewayTestUtils {
 
   public static void seedRequiredData(TestConfig testConfig) {
     String jdbcUrl = "jdbc:h2:" + testConfig.getH2DbFilePath();
-    DataStoreConfiguration db = new DataStoreConfiguration(jdbcUrl, "sa", "sa", "org.h2.Driver");
+    DataStoreConfiguration db = new DataStoreConfiguration(jdbcUrl, "sa", "sa", "org.h2.Driver" , 4);
     JdbcConnectionManager connectionManager = new JdbcConnectionManager(db);
     connectionManager.open();
     Base.exec(HaGatewayTestUtils.getResourceFileContent("gateway-ha-persistence.sql"));

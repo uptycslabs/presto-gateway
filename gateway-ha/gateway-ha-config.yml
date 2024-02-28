@@ -1,25 +1,29 @@
 routingRules:
-  rulesEngineEnabled: False
-  # rulesConfigPath: "src/main/resources/rules/routing_rules.yml"
+  rulesEngineEnabled: True
 
 requestRouter:
-  port: 8080
+  port: 8084
   name: prestoRouter
   historySize: 1000
+  ssl: true
+  keystorePath: /home/ryadav/config/keystore.p12
+  keystorePass: changeit
+
 
 dataStore:
-  jdbcUrl: jdbc:mysql://127.0.0.1:3306/prestogateway
+  jdbcUrl: jdbc:mysql://127.0.0.1:3306/prestogateway?enabledTLSProtocols=TLSv1.2
   user: root
   password: root123
   driver: com.mysql.cj.jdbc.Driver
+  queryHistoryRetentionHrs: 24
 
 server:
   applicationConnectors:
     - type: http
-      port: 8090
+      port: 8092
   adminConnectors:
     - type: http
-      port: 8091
+      port: 8093
 
 notifier:
   smtpHost: localhost
@@ -52,8 +56,8 @@ logging:
   appenders:
     - type: console
     - type: file
-      currentLogFilename: /var/log/prestoproxy/prestoproxy-java.log
-      archivedLogFilenamePattern: /var/log/prestoproxy/prestoproxy-java-%d{yyyy-MM-dd}-%i.log.gz
+      currentLogFilename: /tmp/log/prestoproxy/prestoproxy-java.log
+      archivedLogFilenamePattern: /tmp/log/prestoproxy/prestoproxy-java-%d{yyyy-MM-dd}-%i.log.gz
       archivedFileCount: 7
       timeZone: UTC
       maxFileSize: 100MB

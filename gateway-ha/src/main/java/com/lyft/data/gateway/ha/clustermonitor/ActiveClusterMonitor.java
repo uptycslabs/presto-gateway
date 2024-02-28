@@ -12,10 +12,14 @@ import com.lyft.data.gateway.ha.config.ProxyBackendConfiguration;
 import com.lyft.data.gateway.ha.router.GatewayBackendManager;
 import io.dropwizard.lifecycle.Managed;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +28,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import javax.net.ssl.*;
 import javax.ws.rs.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpStatus;
@@ -101,9 +106,80 @@ public class ActiveClusterMonitor implements Managed {
   }
 
   private String queryCluster(String target) {
-    HttpURLConnection conn = null;
     try {
       URL url = new URL(target);
+
+      if(url.getProtocol().equalsIgnoreCase("https")){
+        //make https connection
+        return getHttpsResponse(url, target);
+      }else{
+        return getHttpResponse(url, target);
+      }
+
+
+    } catch (Exception e) {
+      log.error("Error fetching cluster stats from [{}]", target, e);
+    }
+
+    return null;
+  }
+
+
+  public String getHttpsResponse(URL url, String target )  {
+    HttpsURLConnection conn = null;
+
+    try {
+        SSLContext sc = getSSLContext();
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+        // Create all-trusting host name verifier
+        HostnameVerifier allHostsValid = new HostnameVerifier() {
+          public boolean verify(String hostname, SSLSession session) {
+            return true;
+          }
+        };
+
+        // Install the all-trusting host verifier
+        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+
+        // URL url = new URL(target);
+        conn = (HttpsURLConnection) url.openConnection();
+        conn.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(connectionTimeout));
+        conn.setReadTimeout((int) TimeUnit.SECONDS.toMillis(connectionTimeout));
+        conn.setRequestMethod(HttpMethod.GET);
+
+        conn.setHostnameVerifier(allHostsValid);
+        conn.setSSLSocketFactory(sc.getSocketFactory());
+        conn.connect();
+        int responseCode = conn.getResponseCode();
+        if (responseCode == HttpStatus.SC_OK) {
+          BufferedReader reader =
+                  new BufferedReader(new InputStreamReader((InputStream) conn.getContent()));
+          StringBuilder sb = new StringBuilder();
+          String line;
+          while ((line = reader.readLine()) != null) {
+            sb.append(line + "\n");
+          }
+
+          return sb.toString();
+      } else {
+        log.warn("Received non 200 response, response code: {}", responseCode);
+      }
+    } catch (Exception e) {
+      log.error("Error fetching cluster stats from [{}]", target, e);
+    } finally {
+      if (conn != null) {
+        conn.disconnect();
+      }
+
+    }
+    return null;
+  }
+
+  public String getHttpResponse(URL url , String target){
+    HttpURLConnection conn = null;
+    try {
+
       conn = (HttpURLConnection) url.openConnection();
       conn.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(connectionTimeout));
       conn.setReadTimeout((int) TimeUnit.SECONDS.toMillis(connectionTimeout));
@@ -131,6 +207,30 @@ public class ActiveClusterMonitor implements Managed {
       }
     }
     return null;
+  }
+
+
+  private SSLContext getSSLContext() throws NoSuchAlgorithmException, KeyManagementException {
+    //TODO: this is temporary .. need to do in a proper way
+    // Create a trust manager that does not validate certificate chains
+    TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
+      public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+        return null;
+      }
+      public void checkClientTrusted(X509Certificate[] certs, String authType) {
+      }
+      public void checkServerTrusted(X509Certificate[] certs, String authType) {
+      }
+    }
+    };
+
+    // Install the all-trusting trust manager
+    SSLContext sc = SSLContext.getInstance("SSL");
+    sc.init(null, trustAllCerts, new java.security.SecureRandom());
+
+    return sc;
+
+
   }
 
   private ClusterStats getPrestoClusterStats(ProxyBackendConfiguration backend) {

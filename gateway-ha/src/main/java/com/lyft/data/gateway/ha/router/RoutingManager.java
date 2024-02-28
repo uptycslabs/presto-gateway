@@ -8,6 +8,9 @@ import com.lyft.data.proxyserver.ProxyServerConfiguration;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +20,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import javax.net.ssl.*;
 import javax.ws.rs.HttpMethod;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,12 +48,16 @@ public abstract class RoutingManager {
                     return findBackendForUnknownQueryId(queryId);
                   }
                 });
+
+
   }
 
   protected GatewayBackendManager getGatewayBackendManager() {
     return gatewayBackendManager;
   }
-
+  protected void setGatewayBackendManager(GatewayBackendManager gatewayBackendManager) {
+    this.gatewayBackendManager = gatewayBackendManager;
+  }
   public void setBackendForQueryId(String queryId, String backend) {
     queryIdBackendCache.put(queryId, backend);
   }
@@ -97,6 +105,7 @@ public abstract class RoutingManager {
     String backendAddress = null;
     try {
       backendAddress = queryIdBackendCache.get(queryId);
+
     } catch (ExecutionException e) {
       log.error("Exception while loading queryId from cache {}", e.getLocalizedMessage());
     }
@@ -121,12 +130,35 @@ public abstract class RoutingManager {
         Future<Integer> call =
             executorService.submit(
                 () -> {
+
                   URL url = new URL(target);
-                  HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                  conn.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(5));
-                  conn.setReadTimeout((int) TimeUnit.SECONDS.toMillis(5));
-                  conn.setRequestMethod(HttpMethod.HEAD);
-                  return conn.getResponseCode();
+                  if(url.getProtocol().equalsIgnoreCase("https")){
+                    SSLContext sc = getSSLContext();
+                    HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+                    // Create all-trusting host name verifier
+                    HostnameVerifier allHostsValid = new HostnameVerifier() {
+                      public boolean verify(String hostname, SSLSession session) {
+                        return true;
+                      }
+                    };
+                    // Install the all-trusting host verifier
+                    HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+                    HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+                    conn.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(5));
+                    conn.setReadTimeout((int) TimeUnit.SECONDS.toMillis(5));
+                    conn.setHostnameVerifier(allHostsValid);
+                    conn.setSSLSocketFactory(sc.getSocketFactory());
+                    conn.setRequestMethod(HttpMethod.HEAD);
+                    return conn.getResponseCode();
+                  }else{
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(5));
+                    conn.setReadTimeout((int) TimeUnit.SECONDS.toMillis(5));
+                    conn.setRequestMethod(HttpMethod.HEAD);
+                    return conn.getResponseCode();
+                  }
+
                 });
         responseCodes.put(backend.getProxyTo(), call);
       }
@@ -145,5 +177,28 @@ public abstract class RoutingManager {
     }
     // Fallback on first active backend if queryId mapping not found.
     return gatewayBackendManager.getActiveAdhocBackends().get(0).getProxyTo();
+  }
+
+  private SSLContext getSSLContext() throws NoSuchAlgorithmException, KeyManagementException {
+    //TODO: this is temporary .. need to do in a proper way
+    // Create a trust manager that does not validate certificate chains
+    TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
+      public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+        return null;
+      }
+      public void checkClientTrusted(X509Certificate[] certs, String authType) {
+      }
+      public void checkServerTrusted(X509Certificate[] certs, String authType) {
+      }
+    }
+    };
+
+    // Install the all-trusting trust manager
+    SSLContext sc = SSLContext.getInstance("SSL");
+    sc.init(null, trustAllCerts, new java.security.SecureRandom());
+
+    return sc;
+
+
   }
 }

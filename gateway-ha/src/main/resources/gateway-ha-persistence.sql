@@ -6,6 +6,13 @@ external_url VARCHAR (256),
 active BOOLEAN
 );
 
+ CREATE TABLE IF  NOT EXISTS routing_rule (
+  id INT NOT NULL AUTO_INCREMENT ,
+  name varchar(256) NOT NULL UNIQUE,
+  rule text,
+  active tinyint DEFAULT NULL,
+  PRIMARY KEY (id)
+) ;
 CREATE TABLE IF NOT EXISTS query_history (
 query_id VARCHAR(256) PRIMARY KEY,
 query_text VARCHAR (256),

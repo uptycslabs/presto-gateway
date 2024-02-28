@@ -82,6 +82,8 @@ function buildNameForEntity(entity, entityType) {
         case "GATEWAY_BACKEND":
         case "RESOURCE_GROUP":
             return entity.name;
+        case "ROUTING_RULE":
+            return entity.name;
         case "SELECTOR":
             return entity.resourceGroupId;
         default:
@@ -109,7 +111,7 @@ function renderEntityEditor() {
     $("#entityEditorBottom").html(submitHtml);
 
     var entityDetailsTextArea = $("#entityDetailsTextArea");
-    entityDetailsTextArea.html("<textarea rows='20' cols='50' id='jsonTextArea'>" + JSON.stringify(editor.get(), null, 4) + "</textarea>");
+    entityDetailsTextArea.html("<textarea rows='30' cols='200' id='jsonTextArea'>" + JSON.stringify(editor.get(), null, 4) + "</textarea>");
     entityDetailsTextArea.append("<p/><input type='button' value='load to editor' onclick='loadToEditor()' />");
 }
 

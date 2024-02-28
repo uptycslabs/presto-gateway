@@ -43,12 +43,12 @@ public class TestPrestoQueueLengthRoutingTable {
     String jdbcUrl = "jdbc:h2:" + tempH2DbDir.getAbsolutePath();
     HaGatewayTestUtils.seedRequiredData(
         new HaGatewayTestUtils.TestConfig("", tempH2DbDir.getAbsolutePath()));
-    DataStoreConfiguration db = new DataStoreConfiguration(jdbcUrl, "sa", "sa", "org.h2.Driver");
+    DataStoreConfiguration db = new DataStoreConfiguration(jdbcUrl, "sa", "sa", "org.h2.Driver", 4);
     JdbcConnectionManager connectionManager = new JdbcConnectionManager(db);
     backendManager = new HaGatewayManager(connectionManager);
     historyManager = new HaQueryHistoryManager(connectionManager) {
     };
-    routingTable = new PrestoQueueLengthRoutingTable(backendManager, historyManager);
+    routingTable =  new PrestoQueueLengthRoutingTable(backendManager, historyManager);
 
     for (String grp : mockRoutingGroups) {
       addMockBackends(grp, NUM_BACKENDS, 0);
@@ -188,11 +188,11 @@ public class TestPrestoQueueLengthRoutingTable {
         Map<String, Integer> routingDistribution = routeQueries(mockRoutingGroup, numRequests);
 
         // Useful for debugging
-        //System.out.println("Input :" + clusterQueueMap.toString() + " Num of Requests:"
-        //    + numRequests
-        //    + " Internal Routing table: "
-        //    + routingTable.getInternalWeightedRoutingTable(mockRoutingGroup).toString()
-        //    + " Distribution: " + routingDistribution.toString());
+        System.out.println("Input :" + clusterQueueMap.toString() + " Num of Requests:"
+           + numRequests
+            + " Internal Routing table: "
+           + routingTable.getInternalWeightedRoutingTable(mockRoutingGroup).toString()
+           + " Distribution: " + routingDistribution.toString());
         if (numBk > 1) {
           if (routingDistribution.containsKey(mockRoutingGroup + (numBk - 1))) {
             assert routingDistribution.get(mockRoutingGroup + (numBk - 1))
@@ -220,11 +220,11 @@ public class TestPrestoQueueLengthRoutingTable {
         Map<String, Integer> routingDistribution = routeQueries(mockRoutingGroup, numRequests);
 
         // Useful Debugging Info
-        //System.out.println("Input :" + clusterQueueMap.toString() + " Num of Requests:"
-        //    + numRequests
-        //    + " Internal Routing table: "
-        //    + routingTable.getInternalWeightedRoutingTable(mockRoutingGroup).toString()
-        //    + " Distribution: " + routingDistribution.toString());
+        System.out.println("Input :" + clusterQueueMap.toString() + " Num of Requests:"
+           + numRequests
+         + " Internal Routing table: "
+         + routingTable.getInternalWeightedRoutingTable(mockRoutingGroup).toString()
+         + " Distribution: " + routingDistribution.toString());
         if (numBk > 2 && routingDistribution.containsKey(mockRoutingGroup + (numBk - 1))) {
           assert routingDistribution.get(mockRoutingGroup + (numBk - 1))
               <= Math.ceil(numRequests / numBk);
@@ -341,13 +341,13 @@ public class TestPrestoQueueLengthRoutingTable {
         Map<String, Integer> routingDistribution = routeQueries(mockRoutingGroup, numRequests);
 
         //Useful Debugging Info
-        /*
         System.out.println("Input :" + clusterRunningMap.toString() + " Num of Requests:" +
         numRequests
         + " Internal Routing table: " + routingTable.getInternalWeightedRoutingTable
         (mockRoutingGroup).toString()
         + " Distribution: " + routingDistribution.toString());
-        */
+
+
         if (numBk > 2 && routingDistribution.containsKey(mockRoutingGroup + (numBk - 1))) {
           assert routingDistribution.get(mockRoutingGroup + (numBk - 1))
                   <= Math.ceil(numRequests / numBk);

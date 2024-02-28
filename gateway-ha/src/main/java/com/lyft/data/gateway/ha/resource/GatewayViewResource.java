@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.lyft.data.gateway.ha.config.ProxyBackendConfiguration;
 import com.lyft.data.gateway.ha.router.GatewayBackendManager;
 import com.lyft.data.gateway.ha.router.QueryHistoryManager;
+import com.lyft.data.gateway.ha.router.RoutingGroupRuleManager;
 import io.dropwizard.views.View;
 
 import java.nio.charset.Charset;
@@ -23,6 +24,10 @@ public class GatewayViewResource {
   private static final long START_TIME = System.currentTimeMillis();
   @Inject private GatewayBackendManager gatewayBackendManager;
   @Inject private QueryHistoryManager queryHistoryManager;
+
+  @Inject private RoutingGroupRuleManager routingGroupRuleManager;
+
+
 
   @GET
   @Produces(MediaType.TEXT_HTML)
@@ -53,6 +58,31 @@ public class GatewayViewResource {
     gatewayView.setQueryHistory(queryHistoryManager.fetchQueryHistory());
     gatewayView.setQueryDistribution(getQueryHistoryDistribution());
     return gatewayView;
+  }
+
+  @GET
+  @Produces(MediaType.TEXT_HTML)
+  @Path("viewrules")
+  public GatewayView getRulesView() {
+    GatewayView gatewayView = new GatewayView("/template/rules-view.ftl");
+    // Get All active backends
+    gatewayView.setBackendConfigurations(
+            gatewayBackendManager.getAllBackends().stream()
+                    .filter(ProxyBackendConfiguration::isActive)
+                    .collect(Collectors.toList()));
+
+    gatewayView.setQueryHistory(queryHistoryManager.fetchQueryHistory());
+    gatewayView.setQueryDistribution(getQueryHistoryDistribution());
+
+    gatewayView.setRulesConfiguration(routingGroupRuleManager.getRulesJsonAsString());
+    return gatewayView;
+  }
+
+  @GET
+  @Path("api/getRules")
+  @Produces(MediaType.APPLICATION_JSON)
+  public List<Map<String, Object>> getAllRules() {
+    return routingGroupRuleManager.getAllRoutingRules();
   }
 
   @GET
@@ -106,6 +136,7 @@ public class GatewayViewResource {
     private List<ProxyBackendConfiguration> backendConfigurations;
     private List<QueryHistoryManager.QueryDetail> queryHistory;
     private Map<String, Integer> queryDistribution;
+    private String rulesConfiguration;
 
     protected GatewayView(String templateName) {
       super(templateName, Charset.defaultCharset());

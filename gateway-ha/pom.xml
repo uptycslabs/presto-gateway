@@ -149,6 +149,12 @@
             <artifactId>okhttp</artifactId>
             <version>3.9.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.6.0</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -158,6 +164,7 @@
                 <version>3.0.0</version>
                 <configuration>
                     <skipSource>true</skipSource>
+
                 </configuration>
             </plugin>
             <plugin>
@@ -182,6 +189,7 @@
                     <createDependencyReducedPom>false</createDependencyReducedPom>
                     <shadedArtifactAttached>true</shadedArtifactAttached>
                     <shadedClassifierName>jar-with-dependencies</shadedClassifierName>
+
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>

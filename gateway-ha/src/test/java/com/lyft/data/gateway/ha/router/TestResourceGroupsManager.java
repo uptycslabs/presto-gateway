@@ -30,7 +30,7 @@ public class TestResourceGroupsManager {
     String jdbcUrl = "jdbc:h2:" + tempH2DbDir.getAbsolutePath();
     HaGatewayTestUtils.seedRequiredData(
         new HaGatewayTestUtils.TestConfig("", tempH2DbDir.getAbsolutePath()));
-    DataStoreConfiguration db = new DataStoreConfiguration(jdbcUrl, "sa", "sa", "org.h2.Driver");
+    DataStoreConfiguration db = new DataStoreConfiguration(jdbcUrl, "sa", "sa", "org.h2.Driver", 4);
     JdbcConnectionManager connectionManager = new JdbcConnectionManager(db);
     resourceGroupManager = new HaResourceGroupsManager(connectionManager);
   }

@@ -45,19 +45,24 @@ public class JdbcConnectionManager {
   }
 
   private void startCleanUps() {
+    Integer retentionHrs = configuration.getQueryHistoryRetentionHrs();
+    int hrs = retentionHrs != null ? retentionHrs : 4;
+    long periodicDelay = (hrs/2) * 60;
     executorService.scheduleWithFixedDelay(
+
         () -> {
           log.info("Performing query history cleanup task");
           try {
             this.open();
+
             QueryHistory.delete(
-                "created < ?", System.currentTimeMillis() - TimeUnit.HOURS.toMillis(4));
+                "created < ?", System.currentTimeMillis() - TimeUnit.HOURS.toMillis(hrs));
           } finally {
             this.close();
           }
         },
         1,
-        120,
+            periodicDelay,
         TimeUnit.MINUTES);
   }
 }

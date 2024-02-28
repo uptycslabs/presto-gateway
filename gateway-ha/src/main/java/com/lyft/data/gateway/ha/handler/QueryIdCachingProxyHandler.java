@@ -157,7 +157,7 @@ public class QueryIdCachingProxyHandler extends ProxyHandler {
             + request.getRequestURI()
             + (request.getQueryString() != null ? "?" + request.getQueryString() : "");
 
-    log.info("Rerouting [{}]--> [{}]", originalLocation, targetLocation);
+    log.info("Rerouting [{}]--> [{}] ", originalLocation, targetLocation );
     return targetLocation;
   }
 
