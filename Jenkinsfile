@@ -1,5 +1,5 @@
 pipeline {
-    agent { label 'uptycs' }
+    agent { label 'uptycsu20' }
     stages  {
         stage('Maven Build') {
             steps {
