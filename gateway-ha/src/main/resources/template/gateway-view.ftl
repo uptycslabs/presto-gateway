@@ -19,7 +19,7 @@
     <link rel="stylesheet" type="text/css" href="assets/css/common.css"/>
     <link rel="stylesheet" type="text/css" href="assets/css/jquery.dataTables.min.css"/>
 
-    <script src="assets/js/jquery-3.3.1.js"></script>
+    <script src="assets/js/jquery-3.5.0.js"></script>
     <script src="assets/js/jquery.dataTables.min.js"></script>
     <script src="assets/js/hbar-chart.js"></script>
 
