@@ -3,7 +3,7 @@
     <meta charset="UTF-8"/>
     <link rel="stylesheet" type="text/css" href="assets/css/common.css"/>
     <link rel="stylesheet" type="text/css" href="assets/css/jquery.dataTables.min.css"/>
-    <script src="assets/js/jquery-3.3.1.js"></script>
+    <script src="assets/js/jquery-3.5.0.js"></script>
 
     <!-- JSON Editor comes here-->
     <link rel="stylesheet" href="assets/js/jsonedit/jsoneditor.min.css"/>
